@@ -1,8 +1,15 @@
 import math
-
+import scipy.stats as stats
 import numpy as m
 import numpy.linalg as l
 import random
+
+
+def table_fisher(prob, d, f3):
+    x_vec = [i*0.001 for i in range(int(10/0.001))]
+    for i in x_vec:
+        if abs(stats.f.cdf(i, 4-d, f3)-prob) < 0.0001:
+            return i
 
 
 def matrix_generator(max_y, min_y, len_matrix):  # Генератор випадкових матриць для у
@@ -38,8 +45,11 @@ matrix_of_x = [[-20, -15, -15],  # Матриця планування, част
                [-20, 35, -10],
                [15, -15, -10],
                [15, 35, -15]]
-
-matrix_of_y = matrix_generator(213, 183, 4)  # Заповнюю матрицю планування у
+m1 = 4
+f1 = m1-1
+f2 = 4
+f3 = f1*f2
+matrix_of_y = matrix_generator(213, 183, f2)  # Заповнюю матрицю планування у
 print(" Matrix of Y:")
 print(" ---------------")
 print('\n'.join([''.join(['{:4}'.format(item) for item in row])
@@ -62,6 +72,7 @@ print("a13 = a31 = " + str(a13))
 a23 = a32 = find_third_a(m.array(matrix_of_x).transpose()[1], m.array(matrix_of_x).transpose()[2])
 print("a23 = a32 = " + str(a23))
 print("------------------")
+
 divider_matrix = m.array([[1, list_of_mx[0], list_of_mx[1], list_of_mx[2]],
                           [list_of_mx[0], list_of_a1[0], a12, a13],
                           [list_of_mx[1], a12, list_of_a1[1], a32],
@@ -86,10 +97,8 @@ fourth_matrix = m.array([[1, list_of_mx[0], list_of_mx[1], my],
                          [list_of_mx[0], list_of_a1[0], a12, list_of_a[0]],
                          [list_of_mx[1], a12, list_of_a1[1], list_of_a[1]],
                          [list_of_mx[2], a13, a23, list_of_a[2]]])
-
 print("Finding koef")
 print("------------------")
-
 b0 = l.det(first_matrix) / l.det(divider_matrix)  # Знаходжу коефіціенти
 b1 = l.det(second_matrix) / l.det(divider_matrix)
 b2 = l.det(third_matrix) / l.det(divider_matrix)
@@ -97,7 +106,6 @@ b3 = l.det(fourth_matrix) / l.det(divider_matrix)
 koef = [b0, b1, b2, b3]
 print('| '.join('b{} = {:.2f} '.format(n, k) for n, k in enumerate(koef)))
 print("Check: ")
-
 y1 = b0 + b1 * (-20) + b2 * (-15) + b3 * (-15)  # Перевірка коефіціентів
 y2 = b0 + b1 * (-20) + b2 * 35 + b3 * (-10)
 y3 = b0 + (b1 * 15) + (b2 * -15) + (b3 * -10)
@@ -105,9 +113,10 @@ y4 = b0 + b1 * 15 + b2 * 35 + b3 * (-15)
 y = [y1, y2, y3, y4]
 print('| '.join('Y{} = {:.2f} '.format(n+1, k) for n, k in enumerate(y)))
 print('| '.join('Ymid{} = {} '.format(n+1, k) for n, k in enumerate(middles_y)))
+
 # Перевірка за критерієм Кохрена
 print("------------------")
-print("Kohren Checking:")
+print("Kochren Checking:")
 print("------------------")
 dis1 = ((matrix_of_y[0][0] - middles_y[0]) ** 2 + (matrix_of_y[0][1] - middles_y[0]) ** 2 +  # Знайду дисперсії
         (matrix_of_y[0][2] - middles_y[0]) ** 2) / 3
@@ -121,7 +130,9 @@ dises = [dis1, dis2, dis3, dis4]
 print('| '.join('Dispersion{} = {:.2f} '.format(n+1, k) for n, k in enumerate(dises)))
 gp = max(dises) / sum(dises)
 print("Gp = " + str(gp))
-if gp <= 0.7679:
+fisher = table_fisher(0.95, 1, f1 * 4)
+Gt = fisher / (fisher + f1 - 2)
+if gp <= Gt:
     print("Dispersion is homogeneous")
 else:
     print("Dispersion is patchy")
@@ -145,7 +156,7 @@ t2 = beta2 / disb2
 t3 = beta3 / disb2
 count = len(betas)
 for k, i in enumerate(betas):
-    if i < 2.306:
+    if i < stats.t.ppf(1.95/2, f3):
         koef[k] = 0
         count -= 1
 print("Koefs:")
@@ -157,6 +168,7 @@ y04 = koef[0] + koef[1]*matrix_of_x[3][0]+koef[2]*matrix_of_x[3][1]+koef[3]*matr
 y0 = [y01, y02, y03, y04]
 print("Y only with significant koefs:")
 print('| '.join('Y{} = {:.2f} '.format(n+1, k) for n, k in enumerate(y0)))
+
 # Критерій Фішера
 print("------------------")
 print("Fisher Сriterion:")
@@ -165,18 +177,9 @@ sad = (math.pow(y01 - middles_y[0], 2) + math.pow(y02 - middles_y[1], 2) +
        math.pow(y03 - middles_y[2], 2) + math.pow(y04 - middles_y[3], 2))
 kof = sad/disB
 print("Fp = " + str(kof))
-if count == 2:
-    if kof <= 4.5:
-        print("The regression equation is adequate to the original at a significance level of 0.05")
-    else:
-        print("The regression equation is inadequate to the original at a significance level of 0.05")
-elif count == 1:
-    if kof <= 4.1:
-        print("The regression equation is adequate to the original at a significance level of 0.05")
-    else:
-        print("The regression equation is inadequate to the original at a significance level of 0.05")
-elif count == 3:
-    if kof <= 5.3:
-        print("The regression equation is adequate to the original at a significance level of 0.05")
-    else:
-        print("The regression equation is inadequate to the original at a significance level of 0.05")
+fp = stats.f.ppf(0.95, 4-count, 8)
+if kof <= fp:
+    print("The regression equation is adequate to the original at a significance level of 0.05")
+else:
+    print("The regression equation is inadequate to the original at a significance level of 0.05")
+
