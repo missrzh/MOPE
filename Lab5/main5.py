@@ -125,9 +125,9 @@ def y_function(kof, x):  # Лінійне рівняння регресії
 
 
 N = 15
-x1min, x1max = -3, 6  # Значення за варіантом
-x2min, x2max = -8, 2
-x3min, x3max = -3, 4
+x1min, x1max = -4, 6  # Значення за варіантом
+x2min, x2max = -1, 2
+x3min, x3max = -4, 2
 li_max = [x1max, x2max, x3max]
 li_min = [x1min, x2min, x3min]
 x_mid_max = (x1max + x2max + x3max) / 3
@@ -202,11 +202,11 @@ kof = sad / disB
 print("Fp = " + str(kof))
 fp = stats.f.ppf(0.95, N - count, f3)
 if kof <= fp:  # Перевірка адекватності за критерієм Фішера
-    print("The regression equation is adequate to the original at a significance level of 0.05")
-    print("Answer:")
+    print("Уравнение регрессии адекватно оригиналу на уровне значимости 0.05")
+    print("Ответ:")
     print("y = {:.2f} + {:.2f}*x1 + {:.2f}*x2 + {:.2f}*x3 + {:.2f}*x1x2 + {:.2f}*x1x3 + {:.2f}*x2x3 + "
           "{:.2f}*x1x2x3 + {:.2f}*x1^2 + {:.2f}*x2^2 + {:.2f}*x3^2".format(*koef))
     print("----------------------------------------------------------------------")
 
 else:
-    print("The regression equation is inadequate to the original at a significance level of 0.05")
+    print("уравнение регрессии не соответствует оригиналу на уровне значимости 0.05")
