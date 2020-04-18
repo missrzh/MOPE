@@ -144,7 +144,9 @@ def fill_y_matrix_lab6(matr_x, lis_koef, m_f):
     return numpy.array(matrix_f).transpose()
 
 
-while True:
+zn = 0
+nz = 0
+for _ in range(100):
     N = 15
     x1min, x1max = -20, 15  # Значення за варіантом
     x2min, x2max = -15, 35
@@ -223,13 +225,17 @@ while True:
     sad = sum([(x - y) ** 2 for x, y in zip(y0, middles_y)])
     kof = sad / disB
     print("Fp = " + str(kof))
-    fp = stats.f.ppf(0.95, N - count, f3)
+    zn += count
+    nz += N-count
+    fp = stats.f.ppf(0.95, count, f3)
     if kof <= fp:  # Перевірка адекватності за критерієм Фішера
         print("The regression equation is adequate to the original at a significance level of 0.05")
         print("Answer:")
         print("y = {:.2f} + {:.2f}*x1 + {:.2f}*x2 + {:.2f}*x3 + {:.2f}*x1x2 + {:.2f}*x1x3 + {:.2f}*x2x3 + "
               "{:.2f}*x1x2x3 + {:.2f}*x1^2 + {:.2f}*x2^2 + {:.2f}*x3^2".format(*koef))
         print("----------------------------------------------------------------------")
-        break
+
     else:
         print("The regression equation is inadequate to the original at a significance level of 0.05")
+print("Значимих: " + str(zn))
+print("Не значимих: " + str(nz))
