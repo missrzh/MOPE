@@ -34,15 +34,8 @@ def Student_check(dises1):  # Функція оцінювання значимо
 def Kokhren_check(matrix_y, m):  # Функія для перевірки методом Кохрена
     disesi = [find_dispersion(matrix_y[i]) for i in range(len(matrix_y))]
     gp = max(disesi) / sum(disesi)
-    if f1 ==1:
-        Gt = 4.709
-    elif f1 == 2:
-        Gt = 3.346
-    elif f1 == 3:
-        Gt = 2.758
-    elif f1 == 4:
-        Gt = 2.419
-    else: Gt = 2.159
+    fisher = table_fisher(0.95, m, f3)
+    Gt = fisher / (f1 * m)
 
     print("----------------------------------------------------------------------")
     print("Kochren Checking:")
