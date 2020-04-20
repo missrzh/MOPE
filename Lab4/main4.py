@@ -4,7 +4,7 @@ import numpy
 import numpy.linalg as l
 import random
 import sys
-import subprocess
+sys.path.insert(0, '../Lab5')
 
 # Функції---------------------------------------------------------------------------------------------------------------
 
@@ -253,7 +253,4 @@ while True:
         else:
             print("The regression equation is inadequate to the original at a significance level of 0.05")
             print("Lab5---------------------------------------------------------------------------------")
-            proc = subprocess.Popen([sys.executable, '../Lab5/main5.py', 'arg1 arg2 arg3 arg4'], stdout=subprocess.PIPE,  # перехід до 5 лаби
-                                stderr=subprocess.STDOUT)
-            for line in iter(proc.stdout.readline, b''):
-                print(line)
+            import main5
